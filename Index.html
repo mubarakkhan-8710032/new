@@ -1,1 +1,339 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+    margin:0;
+    font-family:'Segoe UI', sans-serif;
+    background: linear-gradient(135deg,#f5f7ff,#eef2ff,#f9fafb);
+    padding:50px 20px;
+}
+
+/* Container */
+.prompt-wrapper{
+    max-width:950px;
+    margin:auto;
+}
+
+/* Card */
+.prompt-card{
+    background:#ffffff;
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 18px 45px rgba(0,0,0,0.08);
+    margin-bottom:45px;
+    transition:0.3s ease;
+}
+
+.prompt-card:hover{
+    transform:translateY(-6px);
+    box-shadow:0 28px 65px rgba(0,0,0,0.12);
+}
+
+.prompt-header{
+    background: linear-gradient(135deg,#0f172a,#1e3a8a,#7c3aed);
+    padding:24px;
+    text-align:center;
+    box-shadow:0 10px 30px rgba(30,58,138,0.25);
+    border-bottom:1px solid rgba(255,255,255,0.08);
+}
+
+.prompt-header h3{
+    margin:0;
+    color:#ffffff;
+    font-size:24px;
+    font-weight:700;
+}
+
+.prompt-body{
+    padding:35px;
+    background:#f8fafc;
+    font-size:20px;
+    color:#334155;
+    line-height:1.9;
+    font-weight:500;
+}
+
+.prompt-footer{
+    padding:30px;
+    text-align:center;
+    background:#ffffff;
+    border-top:1px solid #e2e8f0;
+}
+
+.copy-btn{
+    background: linear-gradient(135deg,#f59e0b,#facc15,#fde68a);
+    color:#111827;
+    border:none;
+    padding:16px 42px;
+    font-size:16px;
+    font-weight:800;
+    border-radius:50px;
+    cursor:pointer;
+    transition:all 0.3s ease;
+    box-shadow:0 14px 35px rgba(245,158,11,0.35);
+    letter-spacing:0.5px;
+    text-transform:uppercase;
+}
+
+.copy-btn:hover{
+    transform:translateY(-3px) scale(1.06);
+    box-shadow:0 20px 45px rgba(245,158,11,0.45);
+}
+
+.copy-btn:active{
+    transform:scale(0.98);
+}
+
+
+.copy-btn:hover{
+    transform:scale(1.08);
+    box-shadow:0 18px 45px rgba(16,185,129,0.4);
+}
+
+/* Success Modal */
+.success-overlay{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.4);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    backdrop-filter:blur(6px);
+    opacity:0;
+    visibility:hidden;
+    transition:0.3s ease;
+    z-index:999;
+}
+
+.success-overlay.active{
+    opacity:1;
+    visibility:visible;
+}
+
+.success-box{
+    background:white;
+    padding:50px;
+    border-radius:25px;
+    text-align:center;
+    box-shadow:0 25px 70px rgba(0,0,0,0.25);
+}
+
+.success-box h2{
+    margin:15px 0;
+    color:#10b981;
+    font-size:28px;
+}
+
+.success-box p{
+    color:#64748b;
+    font-size:18px;
+}
+
+/* Confetti */
+.confetti{
+    position:fixed;
+    width:8px;
+    height:8px;
+    top:0;
+    animation:fall 2s linear forwards;
+    z-index:1000;
+}
+
+@keyframes fall{
+    to{
+        transform:translateY(600px) rotate(720deg);
+        opacity:0;
+    }
+}
+
+@media(max-width:768px){
+    .prompt-header h3{font-size:20px;}
+    .prompt-body{font-size:17px;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="prompt-wrapper" id="promptContainer"></div>
+
+<div class="success-overlay" id="successBox">
+    <div class="success-box">
+        <h2>🎉 Copied Successfully!</h2>
+        <p>Your prompt is ready to use. Go create something amazing 🚀</p>
+    </div>
+</div>
+
+<script>
+
+const prompts = [
+`Act as an expert startup business consultant and entrepreneur coach. Compose a comprehensive business plan that outlines your vision, mission, target market, unique value proposition, marketing strategies, and financial projections.`,
+`Act as an expert startup business consultant and entrepreneur coach. List the key legal and regulatory requirements necessary for starting and operating a business in your industry, including licenses, permits, and certifications.`,
+`Act as an expert startup business consultant and entrepreneur coach. Itemize the essential components of a solid marketing strategy, including market research, competitive analysis, branding, advertising, and customer acquisition techniques.`,
+`Act as an expert startup business consultant and entrepreneur coach. Plan a budget for your business, taking into account your anticipated expenses, such as rent, utilities, salaries, inventory, marketing, and insurance.`,
+`Act as an expert startup business consultant and entrepreneur coach. Devise a customer relationship management (CRM) system to effectively manage your interactions and relationships with customers, ensuring their satisfaction and loyalty.`,
+`Act as an expert startup business consultant and entrepreneur coach. Draft a sales forecast that estimates your projected sales volume and revenue over a specified period, considering market trends, competitive landscape, and your marketing efforts.`,
+`Act as an expert startup business consultant and entrepreneur coach. Outline a comprehensive operational plan that covers your business's day-to-day activities, including production processes, inventory management, quality control, and supplier relationships.`,
+`Act as an expert startup business consultant and entrepreneur coach. Plan a pricing strategy that balances profitability with market demand and competitive positioning, taking into account factors such as cost of goods, market research, and perceived value.`,
+`Act as an expert startup business consultant and entrepreneur coach. Calculate your break-even point and create a financial model to determine when your business will start generating profit, considering fixed costs, variable costs, and pricing.`,
+`Act as an expert startup business consultant and entrepreneur coach. Summarize the key elements of a strong team-building strategy, including hiring practices, training and development programs, performance evaluations, and employee retention initiatives.`,
+`Act as an expert startup business consultant and entrepreneur coach. Estimate the amount of funding or capital you will need to start and grow your business, considering startup costs, working capital requirements, and potential expansion plans.`,
+`Act as an expert startup business consultant and entrepreneur coach. Compose a comprehensive competitive analysis that identifies and analyzes your direct and indirect competitors, their strengths and weaknesses, and potential market opportunities.`,
+`Act as an expert startup business consultant and entrepreneur coach. List the various marketing channels available to promote your business, such as digital marketing, social media, email marketing, content marketing, traditional advertising, and public relations.`,
+`Act as an expert startup business consultant and entrepreneur coach. Itemize the technology and software solutions that can streamline your business operations, such as project management tools, accounting software, inventory management systems, and customer support platforms.`,
+`Act as an expert startup business consultant and entrepreneur coach. Plan a scalable growth strategy that outlines how you will expand your business in terms of market reach, product or service offerings, geographical expansion, or strategic partnerships.`,
+`Act as an expert startup business consultant and entrepreneur coach. Devise a customer acquisition plan that outlines the strategies and tactics you will employ to attract new customers, such as lead generation, online advertising, partnerships, and referral programs.`,
+`Act as an expert startup business consultant and entrepreneur coach. Draft a crisis management plan that details how your business will respond to unforeseen events or emergencies, ensuring minimal disruption to operations and maintaining customer trust.`,
+`Act as an expert startup business consultant and entrepreneur coach. Outline a social responsibility and sustainability plan that demonstrates your commitment to ethical practices, environmental conservation, and community engagement.`,
+`Act as an expert startup business consultant and entrepreneur coach. Plan a customer retention strategy that focuses on building long-term relationships with your existing customers, including loyalty programs, personalized marketing, and exceptional customer service.`,
+`Act as an expert startup business consultant and entrepreneur coach. Calculate the return on investment (ROI) for your marketing campaigns or initiatives, tracking the effectiveness of your marketing efforts and optimizing your strategies accordingly.`,
+`Act as an expert startup business consultant and entrepreneur coach. Summarize the essential elements of an effective website or online presence, including user experience, mobile responsiveness, search engine optimization (SEO), and engaging content.`,
+`Act as an expert startup business consultant and entrepreneur coach. Estimate the size of your target market and identify the segments or niches that offer the most potential for growth, considering demographics, psychographics, and market trends.`,
+`Act as an expert startup business consultant and entrepreneur coach. Compose a crisis communication plan that outlines how you will communicate with your stakeholders, employees, customers, and the media in times of crisis or reputation management.`,
+`Act as an expert startup business consultant and entrepreneur coach. List the key performance indicators (KPIs) that you will track to measure the success and progress of your business, such as sales growth, customer satisfaction, conversion rates, and profitability.`,
+`Act as an expert startup business consultant and entrepreneur coach. Itemize the necessary insurance coverage for your business, including general liability insurance, professional liability insurance, property insurance, and workers' compensation.`,
+`Act as an expert startup business consultant and entrepreneur coach. Plan a content marketing strategy that includes creating valuable and relevant content, distributing it through various channels, and measuring its impact on audience engagement and lead generation.`,
+`Act as an expert startup business consultant and entrepreneur coach. Devise a supply chain management plan that ensures the efficient movement of goods or services from suppliers to customers, minimizing costs and optimizing inventory levels.`,
+`Act as an expert startup business consultant and entrepreneur coach. Draft an employee benefits package that includes competitive compensation, health insurance, retirement plans, and other perks to attract and retain top talent.`,
+`Act as an expert startup business consultant and entrepreneur coach. Outline a data security and privacy policy that protects your business and customer data, complying with applicable laws and regulations and mitigating cybersecurity risks.`,
+`Act as an expert startup business consultant and entrepreneur coach. Plan a customer feedback and review management system that encourages customers to provide feedback, resolves their issues, and leverages positive reviews for reputation building.`,
+`Act as an expert startup business consultant and entrepreneur coach. Calculate the lifetime value of a customer to understand the long-term revenue potential of acquiring and retaining customers, helping you allocate resources effectively.`,
+`Act as an expert startup business consultant and entrepreneur coach. Summarize the steps involved in developing a minimum viable product (MVP) or prototype to test your business idea or product before investing significant resources.`,
+`Act as an expert startup business consultant and entrepreneur coach. Estimate the cost and feasibility of implementing a loyalty program for your business, considering the potential benefits in terms of customer retention and increased sales.`,
+`Act as an expert startup business consultant and entrepreneur coach. Compose a comprehensive employee training and development plan that addresses the skills and knowledge required for each role in your organization, fostering employee growth.`,
+`Act as an expert startup business consultant and entrepreneur coach. List the different financing options available to entrepreneurs, such as bootstrapping, bank loans, venture capital, crowdfunding, and government grants, outlining their pros and cons.`,
+`Act as an expert startup business consultant and entrepreneur coach. Itemize the essential elements of an effective sales process, including lead generation, lead qualification, sales presentations, objections handling, and closing techniques.`,
+`Act as an expert startup business consultant and entrepreneur coach. Plan a market entry strategy if you are planning to expand your business into new markets or geographical regions, considering factors like cultural differences, local regulations, and competitive landscape.`,
+`Act as an expert startup business consultant and entrepreneur coach. Devise a succession plan for your business, outlining how ownership or leadership will be transitioned in the future, ensuring business continuity and preserving your legacy.`,
+`Act as an expert startup business consultant and entrepreneur coach. Draft a risk management plan that identifies potential risks and vulnerabilities for your business, outlines mitigation strategies, and ensures business resilience.`,
+`Act as an expert startup business consultant and entrepreneur coach. Outline a partnership or collaboration strategy to explore mutually beneficial alliances with other businesses, leveraging their expertise, resources, and customer base.`,
+`Act as an expert startup business consultant and entrepreneur coach. Plan a social media marketing strategy that includes content creation, community engagement, influencer partnerships, and social media advertising, targeting your key audience.`,
+`Act as an expert startup business consultant and entrepreneur coach. Calculate the payback period for your major investments or projects, helping you assess their financial viability and potential return on investment.`,
+`Act as an expert startup business consultant and entrepreneur coach. Summarize the steps involved in conducting market research, including primary and secondary research methods, data collection, analysis, and interpretation.`,
+`Act as an expert startup business consultant and entrepreneur coach. Estimate the cost and benefits of implementing a customer loyalty program for your business, considering the potential impact on customer retention and repeat purchases.`,
+`Act as an expert startup business consultant and entrepreneur coach. Compose a crisis recovery plan that focuses on recovering from a crisis or disaster, ensuring business continuity, and rebuilding customer trust and confidence.`,
+`Act as an expert startup business consultant and entrepreneur coach. List the key elements of an effective brand strategy, including brand positioning, brand identity, brand messaging, and brand consistency across different channels.`,
+`Act as an expert startup business consultant and entrepreneur coach. Itemize the various customer segmentation strategies you can employ to divide your target market into distinct groups, allowing for more targeted marketing and personalized experiences.`,
+`Act as an expert startup business consultant and entrepreneur coach. Plan a competitive pricing analysis to benchmark your prices against your competitors, evaluating your value proposition and identifying opportunities for pricing optimization.`,
+`Act as an expert startup business consultant and entrepreneur coach. Devise a performance management system that sets clear goals and expectations for your employees, provides regular feedback, and rewards high performers.`,
+`Act as an expert startup business consultant and entrepreneur coach. Draft a digital marketing plan that encompasses online advertising, search engine optimization, social media marketing, email marketing, and analytics to maximize your online presence and reach.`,
+`Act as an expert startup business consultant and entrepreneur coach. How to target your audience.`,
+`Act as an expert startup business consultant and entrepreneur coach. Compose a comprehensive target audience profile that includes demographic information such as age, gender, location, income level, and educational background, as well as psychographic details like interests, values, lifestyle, and purchasing behavior.`,
+`Act as an expert startup business consultant and entrepreneur coach. List the various channels and platforms where your target audience is most likely to be present, such as social media platforms, online forums, industry-specific websites, or offline events and conferences.`,
+`Act as an expert startup business consultant and entrepreneur coach. Itemize the key pain points, challenges, or needs that your target audience faces and identify how your product or service can address those issues effectively.`,
+`Act as an expert startup business consultant and entrepreneur coach. Plan a market research study to gather data and insights about your target audience, including surveys, interviews, focus groups, or data analysis of existing customer behavior.`,
+`Act as an expert startup business consultant and entrepreneur coach. Devise a competitive analysis to understand how your competitors are targeting the same audience and identify opportunities to differentiate your offerings and messaging.`,
+`Act as an expert startup business consultant and entrepreneur coach. Draft a content marketing strategy that aligns with your target audience's interests and preferences, including blog posts, videos, podcasts, or infographics that provide value and engage your audience.`,
+`Act as an expert startup business consultant and entrepreneur coach. Outline a customer journey map that visualizes the different touchpoints and interactions your target audience has with your brand, helping you identify opportunities for engagement and conversion.`,
+`Act as an expert startup business consultant and entrepreneur coach. Plan a social media advertising campaign that precisely targets your audience based on their demographics, interests, behaviors, and online activities, maximizing the impact of your advertising budget.`,
+`Act as an expert startup business consultant and entrepreneur coach. Calculate the lifetime value (LTV) of your target audience, estimating the revenue potential of acquiring and retaining customers over the long term, helping you allocate marketing resources effectively.`,
+`Act as an expert startup business consultant and entrepreneur coach. Summarize the key messaging and value propositions that resonate with your target audience, highlighting the unique benefits and solutions your business offers to address their pain points.`,
+`Act as an expert startup business consultant and entrepreneur coach. Estimate the market size and potential reach of your target audience, considering factors such as population, market trends, competition, and available market research data.`,
+`Act as an expert startup business consultant and entrepreneur coach. Compose a customer segmentation strategy to divide your target audience into distinct groups based on their specific needs, preferences, or behaviors, allowing for more personalized marketing campaigns.`,
+`Act as an expert startup business consultant and entrepreneur coach. List the influencers or thought leaders in your industry who have a significant impact on your target audience, and devise a strategy to collaborate with them for endorsements or partnerships.`,
+`Act as an expert startup business consultant and entrepreneur coach. Itemize the key keywords and search terms that your target audience uses when searching for products or services similar to yours, optimizing your website and content for search engine visibility.`,
+`Act as an expert startup business consultant and entrepreneur coach. Plan a referral program or incentivized sharing strategy to encourage your existing customers to refer your business to their networks, leveraging the power of word-of-mouth marketing.`,
+`Act as an expert startup business consultant and entrepreneur coach. Devise a remarketing campaign that targets individuals who have previously shown interest in your business or interacted with your website, increasing brand recall and conversion rates.`,
+`Act as an expert startup business consultant and entrepreneur coach. Draft an email marketing plan that includes segmented email lists, personalized content, and automation sequences tailored to different stages of the customer journey.`,
+`Act as an expert startup business consultant and entrepreneur coach. Outline a customer feedback and review management system that encourages your target audience to provide feedback and reviews, helping you improve your products and services while building social proof.`,
+`Act as an expert startup business consultant and entrepreneur coach. Plan an event or webinar targeting your audience, providing valuable content, networking opportunities, or exclusive offers that attract and engage your target audience.`,
+`Act as an expert startup business consultant and entrepreneur coach. Calculate the return on investment (ROI) for different marketing channels or campaigns targeting your audience, helping you allocate resources effectively and optimize your marketing efforts.`,
+`Act as an expert startup business consultant and entrepreneur coach. Summarize the key social media engagement strategies that can help you connect and build relationships with your target audience, such as responding to comments, running contests, or hosting live Q&A sessions.`,
+`Act as an expert startup business consultant and entrepreneur coach. Estimate the cost and effectiveness of partnering with relevant publications, influencers, or industry associations to reach your target audience through sponsored content or collaborations.`,
+`Act as an expert startup business consultant and entrepreneur coach. Compose a storytelling framework that resonates with your target audience, using narratives and emotions to convey your brand's values, mission, and impact.`,
+`Act as an expert startup business consultant and entrepreneur coach. List the specific features or benefits of your product or service that are most appealing to your target audience, addressing their pain points and showcasing the unique value you offer.`,
+`Act as an expert startup business consultant and entrepreneur coach. Itemize the key metrics and analytics you should track to measure the success of your marketing efforts targeting your audience, such as website traffic, engagement rate, conversion rate, or customer acquisition cost.`,
+`Act as an expert startup business consultant and entrepreneur coach. Plan a user-generated content strategy that encourages your target audience to create and share content related to your brand, fostering a sense of community and authenticity.`,
+`Act as an expert startup business consultant and entrepreneur coach. Devise a localization strategy to target specific geographical segments within your audience, considering cultural nuances, language preferences, and local market trends.`,
+`Act as an expert startup business consultant and entrepreneur coach. Draft a customer persona for each segment of your target audience, creating detailed profiles that represent their motivations, preferences, and challenges to inform your marketing strategies.`,
+`Act as an expert startup business consultant and entrepreneur coach. Outline a partnership strategy with complementary businesses or brands that share a similar target audience, creating cross-promotion opportunities and expanding your reach.`,
+`Act as an expert startup business consultant and entrepreneur coach. Plan a customer education and onboarding process that guides your target audience through the product or service adoption journey, ensuring they understand its value and benefits.`,
+`Act as an expert startup business consultant and entrepreneur coach. Calculate the customer acquisition cost (CAC) for different marketing channels or campaigns targeting your audience, helping you evaluate their efficiency and optimize your marketing budget.`,
+`Act as an expert startup business consultant and entrepreneur coach. Summarize the key emotional triggers or motivators that influence your target audience's purchase decisions, allowing you to craft compelling messaging that resonates with their aspirations or desires.`,
+`Act as an expert startup business consultant and entrepreneur coach. Estimate the reach and engagement potential of influencer marketing campaigns targeting your audience, considering factors such as influencer relevance, audience size, and engagement rates.`,
+`Act as an expert startup business consultant and entrepreneur coach. Compose a social listening strategy to monitor conversations and sentiment related to your brand or industry among your target audience, providing valuable insights for refining your marketing approach.`,
+`Act as an expert startup business consultant and entrepreneur coach. List the online communities or forums where your target audience actively participates, allowing you to join relevant discussions, answer questions, and establish your brand as an industry expert.`,
+`Act as an expert startup business consultant and entrepreneur coach. Itemize the customer touchpoints across different stages of the buyer's journey, ensuring consistent messaging, seamless experiences, and personalized interactions with your target audience.`,
+`Act as an expert startup business consultant and entrepreneur coach. Plan a customer retention and loyalty program that offers exclusive benefits, rewards, or personalized experiences to encourage repeat purchases and foster long-term relationships.`,
+`Act as an expert startup business consultant and entrepreneur coach. Devise an influencer outreach strategy to identify and engage with influencers who have a genuine connection with your target audience, increasing brand awareness and credibility.`,
+`Act as an expert startup business consultant and entrepreneur coach. Draft a customer advocacy program that encourages your satisfied customers to become brand advocates, sharing their positive experiences and referring others to your business.`,
+`Act as an expert startup business consultant and entrepreneur coach. Outline a mobile marketing strategy to reach your target audience through mobile apps, optimized websites, SMS marketing, or location-based targeting, considering the increasing mobile usage trends.`,
+`Act as an expert startup business consultant and entrepreneur coach. Plan a customer feedback mechanism that allows your target audience to provide suggestions, feedback, or reviews, demonstrating your commitment to continuous improvement and customer-centricity.`,
+`Act as an expert startup business consultant and entrepreneur coach. Calculate the customer churn rate or attrition rate within your target audience, identifying potential areas of improvement in customer experience, product quality, or customer support.`,
+`Act as an expert startup business consultant and entrepreneur coach. Summarize the key benefits and limitations of different advertising channels or platforms to target your audience, such as social media ads, search engine marketing, display advertising, or influencer partnerships.`,
+`Act as an expert startup business consultant and entrepreneur coach. Estimate the reach and engagement potential of content partnerships or guest blogging opportunities with high-traffic websites or publications that cater to your target audience.`,
+`Act as an expert startup business consultant and entrepreneur coach. Compose a customer segmentation strategy based on the customer lifecycle, identifying different approaches and messaging for prospects, new customers, repeat customers, and loyal advocates.`,
+`Act as an expert startup business consultant and entrepreneur coach. List the industry-specific trade shows, conferences, or events that attract your target audience, allowing you to showcase your products or services and network with potential customers.`,
+`Act as an expert startup business consultant and entrepreneur coach. Itemize the key trust-building elements that can influence your target audience's perception of your brand, such as testimonials, case studies, certifications, or endorsements from trusted sources.`,
+`Act as an expert startup business consultant and entrepreneur coach. Plan a targeted email marketing campaign that delivers personalized content and offers based on the specific interests, behaviors, or previous interactions of your target audience.`,
+`Act as an expert startup business consultant and entrepreneur coach. Devise a referral marketing strategy that incentivizes your existing customers to refer your business to their network, offering rewards, discounts, or exclusive benefits for successful referrals.`,
+`Act as an expert startup business consultant and entrepreneur coach. Draft a customer segmentation strategy based on the psychographic profiles of your target audience, such as their values, lifestyle choices, attitudes, or aspirations, allowing for more targeted and impactful marketing campaigns.`,
+];
+const container = document.getElementById("promptContainer");
+
+prompts.forEach((prompt, index) => {
+    const card = document.createElement("div");
+    card.className = "prompt-card";
+
+  card.innerHTML = `
+    <div class="prompt-header">
+        <h3>How to Organize a Business as an Entrepreneur ? Prompt ${(index + 1).toString().padStart(2,'0')}</h3>
+    </div>
+    <div class="prompt-body" id="prompt${index}">
+        ${prompt}
+    </div>
+    <div class="prompt-footer">
+        <button class="copy-btn" onclick="copyPrompt('prompt${index}')">
+            COPY PROMPT
+        </button>
+    </div>
+`;
+
+    container.appendChild(card);
+});
+
+function copyPrompt(id){
+    var text=document.getElementById(id).innerText;
+    navigator.clipboard.writeText(text).then(function(){
+        showSuccess();
+        launchConfetti();
+    });
+}
+
+function showSuccess(){
+    var box=document.getElementById("successBox");
+    box.classList.add("active");
+    setTimeout(function(){
+        box.classList.remove("active");
+    },2500);
+}
+
+function launchConfetti(){	
+    for(let i=0;i<60;i++){
+        let conf=document.createElement("div");
+        conf.classList.add("confetti");
+        conf.style.left=Math.random()*100+"%";
+        conf.style.backgroundColor=randomColor();
+        conf.style.animationDuration=(Math.random()*2+1)+"s";
+        document.body.appendChild(conf);
+        setTimeout(()=>{conf.remove();},2000);
+    }
+}
+
+function randomColor(){
+    const colors=["#f43f5e","#f59e0b","#10b981","#3b82f6","#8b5cf6"];
+    return colors[Math.floor(Math.random()*colors.length)];
+}
+</script>
+
+</body>
+</html>
+
+
 
